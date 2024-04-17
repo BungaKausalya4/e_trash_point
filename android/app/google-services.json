@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "314365297711",
+    "project_id": "e-trash-point",
+    "storage_bucket": "e-trash-point.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:314365297711:android:c5924ee293f4e08811b2da",
+        "android_client_info": {
+          "package_name": "com.example.first_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwPlIEOXbZnrXcE1ji_haEiOQgjKidlcM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
