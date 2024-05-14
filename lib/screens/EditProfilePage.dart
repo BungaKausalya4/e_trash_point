@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:first_project/screens/database.dart';
 import 'package:first_project/theme/theme.dart';
@@ -15,16 +17,16 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController phoneNumbercontroller = TextEditingController();
   TextEditingController addresscontroller = TextEditingController();
   TextEditingController gendercontroller = TextEditingController();
   String selectedGender = "";
-  Stream? UserStream;
+  bool? gender; 
+
 
   getontheload() async {
-    UserStream = await DatabaseMethods().getUserdetail();
     setState(() {});
   }
 
@@ -34,102 +36,183 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.initState();
   }
 
-  Widget allUserDetails() {
-  return StreamBuilder(
-    stream: UserStream,
-    builder: (context, AsyncSnapshot snapshot) {
-      return snapshot.hasData
-          ? ListView.builder(
-              itemCount: snapshot.data.docs.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot ds = snapshot.data.docs[index];
-                return Container(
-                  margin: EdgeInsets.only(bottom: 20.0),
-                  child: Material(
-                    elevation: 5.0,
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: EdgeInsets.all(20),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: lightColorScheme.primary.withOpacity(.2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              
-                              Spacer(),
-                              GestureDetector(
-                                onTap: () {
-                                  _usernameController.text = ds["username"];
-                                  _emailController.text = ds["email"];
-                                  phoneNumbercontroller.text = ds["Phone Number"];
-                                  addresscontroller.text = ds["Address"];
-                                  gendercontroller.text = ds["Gender"];
+  DatabaseMethods db = DatabaseMethods();
 
-                                  EditUserDetail(ds.id);
-                                },
-                                child: Icon(Icons.edit, color: lightColorScheme.primary),
-                              ),
-                              
-                            ],
-                          ),
-                          SizedBox(height: 10), // Add spacing between username and text fields
-                          TextFormField(
-                            controller: TextEditingController(text: ds["username"]),
-                            decoration: InputDecoration(
-                              labelText: 'Username',
-                              border: OutlineInputBorder(),
-                            ),
-                            readOnly: true, // Prevent editing
-                          ),
-                          SizedBox(height: 10), // Add spacing between username and text fields
-                          TextFormField(
-                            controller: TextEditingController(text: ds["email"]),
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              border: OutlineInputBorder(),
-                            ),
-                            readOnly: true, // Prevent editing
-                          ),
-                          SizedBox(height: 10), // Add spacing between username and text fields
-                          TextFormField(
-                            controller: TextEditingController(text: ds["Phone Number"]),
-                            decoration: InputDecoration(
-                              labelText: 'Phone Number',
-                              border: OutlineInputBorder(),
-                            ),
-                            readOnly: true, // Prevent editing
-                          ),
-                          SizedBox(height: 10), // Add spacing between username and text fields
-                          TextFormField(
-                            controller: TextEditingController(text: ds["Address"]),
-                            decoration: InputDecoration(
-                              labelText: 'Addres',
-                              border: OutlineInputBorder(),
-                            ),
-                            readOnly: true, // Prevent editing
-                          ),
-                          SizedBox(height: 10), // Add spacing between username and text fields
-                          TextFormField(
-                            controller: TextEditingController(text: ds["Gender"]),
-                            decoration: InputDecoration(
-                              labelText: 'Gender',
-                              border: OutlineInputBorder(),
-                            ),
-                            readOnly: true, // Prevent editing
-                          ),
-                          // Add more TextFormField widgets for other user details if needed
-                        ],
+  Widget allUserDetails() {
+    return FutureBuilder(
+      future: db.getUserData(),
+    builder: (context, AsyncSnapshot snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        Map<String, dynamic>? ds = snapshot.data!.data();
+      return snapshot.hasData
+            ? Column(children: [
+                TextFormField(
+                  controller: emailController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter Email';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    label: const Text('Email'),
+                    hintText: 'Enter Email',
+                    hintStyle: const TextStyle(
+                      color: Colors.black26,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.black12,
                       ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.black12,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                );
-              },
-            )
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                TextFormField(
+                  controller: usernameController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter Username';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    label: const Text('Username'),
+                    hintText: 'Enter Username',
+                    hintStyle: const TextStyle(
+                      color: Colors.black26,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.black12,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.black12,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                TextFormField(
+                  controller: phoneNumbercontroller,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter Phone Number';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    label: const Text('Phone Number'),
+                    hintText: 'Enter Phone Number',
+                    hintStyle: const TextStyle(
+                      color: Colors.black26,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.black12,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.black12,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                      
+                const SizedBox(
+                  height: 20,
+                ),
+                DropdownButtonFormField<bool>(
+                  value: gender,
+                  onChanged: (newValue) {
+                    setState(() {
+                      gender = newValue;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Please select your gender';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Gender',
+                    hintText: 'Select Gender',
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  items: [
+                    DropdownMenuItem<bool>(
+                      value: true,
+                      child: Text('Male'),
+                    ),
+                    DropdownMenuItem<bool>(
+                      value: false,
+                      child: Text('Female'),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(
+                  height: 10,
+                ),
+                TextFormField(
+                  controller: addresscontroller,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter Address';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    label: const Text('Address'),
+                    hintText: 'Enter Address',
+                    hintStyle: const TextStyle(
+                      color: Colors.black26,
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.black12,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Colors.black12,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ])
           : Container();
     },
   );
@@ -155,7 +238,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Future EditUserDetail(String id) => showDialog(
+  Future editUserDetail(String id) => showDialog(
   context: context,
   builder: (context) => AlertDialog(
     content: SingleChildScrollView(
@@ -207,7 +290,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: TextField(
-                controller: _usernameController,
+                      controller: usernameController,
                 decoration: InputDecoration(border: InputBorder.none),
               ),
             ),
@@ -228,7 +311,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: TextField(
-                controller: _emailController,
+                      controller: emailController,
                 decoration: InputDecoration(border: InputBorder.none),
               ),
             ),
@@ -301,8 +384,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: ElevatedButton(
                 onPressed: () async {
                   Map<String, dynamic> updateInfo = {
-                    "username": _usernameController.text,
-                    "email": _emailController.text,
+                          "username": usernameController.text,
+                          "email": emailController.text,
                     "phoneNumber": phoneNumbercontroller.text,
                     "gender": gendercontroller.text,
                     "Address": addresscontroller.text,

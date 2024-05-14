@@ -51,6 +51,7 @@ class DatabaseMethods {
       "points": transactionMap["points"],
       "timestamp": transactionMap["timestamp"],
       "type": transactionMap["type"],
+      "itemId": transactionMap["itemId"],
     });
   }
 
@@ -61,6 +62,14 @@ class DatabaseMethods {
         .doc(getCurrentUserUid())
         .collection("transactions")
         .snapshots();
+  }
+
+  // get user data from database
+  Future<dynamic>? getUserData() async {
+    return await FirebaseFirestore.instance
+        .collection("users")
+        .doc(getCurrentUserUid())
+        .get();
   }
 
 

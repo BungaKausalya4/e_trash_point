@@ -28,29 +28,29 @@ class _SignInScreenState extends State<SignInScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController confirmpasswordcontroller = TextEditingController();
 
-Future<UserCredential> signInWithGithub() async {
-  GithubAuthProvider githubAuthProvider =GithubAuthProvider();
+  Future<UserCredential> signInWithGithub() async {
+    GithubAuthProvider githubAuthProvider = GithubAuthProvider();
 
-  try {
-    return await FirebaseAuth.instance.signInWithProvider(githubAuthProvider);
-  } catch (e) {
-     print("");
-     rethrow;
+    try {
+      return await FirebaseAuth.instance.signInWithProvider(githubAuthProvider);
+    } catch (e) {
+      print("");
+      rethrow;
+    }
   }
- 
-  
-  
-}
-void signInWithGoogle() async {
+
+  void signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser != null) {
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
         final AuthCredential credential = GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken,
           idToken: googleAuth.idToken,
         );
-        final UserCredential userCredential = await _auth.signInWithCredential(credential);
+        final UserCredential userCredential =
+            await _auth.signInWithCredential(credential);
         final User? user = userCredential.user;
 
         if (user != null) {
@@ -84,48 +84,47 @@ void signInWithGoogle() async {
       );
     }
   }
+
   void userSignIn() async {
-  try {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => RootPage()),
-    );
-  } on FirebaseAuthException catch (e) {
-    String errorMessage = 'The password/email for this user is incorrect.';
-    
-    if (e.code == 'user-not-found') {
-      errorMessage = 'No user found for that email.';
-    } else if (e.code == 'wrong-password') {
-      errorMessage = 'Wrong password provided for this user.';
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // route to home page
+      Navigator.pushNamedAndRemoveUntil(context, '/root', (_) => false);
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'The password/email for this user is incorrect.';
+
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No user found for that email.';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Wrong password provided for this user.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color.fromARGB(255, 70, 172, 30),
+          content: Text(
+            errorMessage,
+            style: TextStyle(fontSize: 18.0),
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Error signing in: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            'Sign in failed. Please try again later.',
+            style: TextStyle(fontSize: 18.0),
+          ),
+        ),
+      );
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: const Color.fromARGB(255, 70, 172, 30),
-        content: Text(
-          errorMessage,
-          style: TextStyle(fontSize: 18.0),
-        ),
-      ),
-    );
-  } catch (e) {
-    print('Error signing in: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text(
-          'Sign in failed. Please try again later.',
-          style: TextStyle(fontSize: 18.0),
-        ),
-      ),
-    );
   }
-}
-
 
   @override
   void dispose() {
@@ -221,7 +220,9 @@ void signInWithGoogle() async {
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _showPassword ? Icons.visibility : Icons.visibility_off,
+                              _showPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Colors.black26,
                             ),
                             onPressed: () {
@@ -258,22 +259,23 @@ void signInWithGoogle() async {
                             ],
                           ),
                           GestureDetector(
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ResetPasswordScreen()),
-    );
-  },
-  child: Text(
-    "Forgot Password?",
-    style: TextStyle(
-      color: Color(0xFF8c8e98),
-      fontSize: 13.0, // Ubah ukuran font ke 16
-      fontWeight: FontWeight.w500,
-    ),
-  ),
-),
-
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ResetPasswordScreen()),
+                              );
+                            },
+                            child: Text(
+                              "Forgot Password?",
+                              style: TextStyle(
+                                color: Color(0xFF8c8e98),
+                                fontSize: 13.0, // Ubah ukuran font ke 16
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(
@@ -328,63 +330,62 @@ void signInWithGoogle() async {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                        
                           GestureDetector(
-              onTap: signInWithGoogle,
-              child: SvgPicture.asset(
-                'assets/images/google_logo.svg',
-                width: 32,
-                height: 32,
-              ),
-            ),
+                            onTap: signInWithGoogle,
+                            child: SvgPicture.asset(
+                              'assets/images/google_logo.svg',
+                              width: 32,
+                              height: 32,
+                            ),
+                          ),
                           GestureDetector(
-  onTap: () {
-    // Navigasi ke kelas SMS
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => sms()), // Ganti SmsScreen dengan nama kelas yang sesuai
-    );
-  },
-  child: Icon(
-    Icons.message, // Gunakan ikon pesan atau ikon lain yang sesuai
-    size: 32,
-    color: Colors.black, // Ubah warna ikon sesuai kebutuhan
-  ),
-),
-GestureDetector(
-  onTap: () async {
-    try {
-      UserCredential userCredential = await signInWithGithub();
-        
-      if (context.mounted) {
-        // Navigasi hanya dilakukan jika berhasil masuk
+                            onTap: () {
+                              // Navigasi ke kelas SMS
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        sms()), // Ganti SmsScreen dengan nama kelas yang sesuai
+                              );
+                            },
+                            child: Icon(
+                              Icons
+                                  .message, // Gunakan ikon pesan atau ikon lain yang sesuai
+                              size: 32,
+                              color: Colors
+                                  .black, // Ubah warna ikon sesuai kebutuhan
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              try {
+                                UserCredential userCredential =
+                                    await signInWithGithub();
 
-        print("Successfull");
+                                if (context.mounted) {
+                                  // Navigasi hanya dilakukan jika berhasil masuk
 
+                                  print("Successfull");
+                                }
 
-      }
-
-              Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RootPage(),
-          ),
-        );
-    } catch (e) {
-      // Tangani kesalahan yang terjadi selama proses masuk
-      print('Error signing in with GitHub: $e');
-      // Anda mungkin ingin menampilkan pesan kesalahan kepada pengguna di sini
-    }
-  },
-  child: Image.asset(
-    'assets/images/github_logo.png',
-    width: 32,
-    height: 32,
-  ),
-),
-
-
-                          
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RootPage(),
+                                  ),
+                                );
+                              } catch (e) {
+                                // Tangani kesalahan yang terjadi selama proses masuk
+                                print('Error signing in with GitHub: $e');
+                                // Anda mungkin ingin menampilkan pesan kesalahan kepada pengguna di sini
+                              }
+                            },
+                            child: Image.asset(
+                              'assets/images/github_logo.png',
+                              width: 32,
+                              height: 32,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(
@@ -403,7 +404,8 @@ GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                                MaterialPageRoute(
+                                    builder: (context) => const SignUpScreen()),
                               );
                             },
                             child: const Text(

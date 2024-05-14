@@ -1,3 +1,4 @@
+import 'package:first_project/screens/root_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:first_project/screens/welcome_screen.dart';
@@ -33,6 +34,10 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: const WelcomeScreen(),
+      routes: {
+        // Add your routes here
+        '/root': (context) => const RootPage(),
+      },
     );
   }
 }

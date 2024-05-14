@@ -238,7 +238,7 @@ class _CartPageState extends State<CartPage> {
           'points': gift.poin,
           'timestamp': DateTime.now(),
           'type': 'gift',
-          'giftId': gift.giftId,
+          'itemId': gift.giftId,
         };
         _addTransactionToUser(userId, transactionMap);
       }

@@ -121,12 +121,12 @@ class _TrashPageState extends State<TrashPage> {
                         Trash exchangedTrash =
                             exchangeTrashWithPoints(selectedTrashId!);
                         db.addTransactionToUser(widget.userId, {
+                          'itemId': selectedTrashId,
                           'transactionId':
                               DateTime.now().millisecondsSinceEpoch,
-                          'points': totalPoints,
+                          'points': exchangedTrash.poin,
                           'timestamp': DateTime.now(),
                           'type': 'trash',
-                          'trashId': selectedTrashId,
                         });
 
                         _updateUserPoints(widget.userId, totalPoints);

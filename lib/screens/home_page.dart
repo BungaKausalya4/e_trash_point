@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+
 import 'package:first_project/screens/database.dart';
 import 'package:first_project/screens/detail_page.dart';
 import 'package:first_project/screens/infoTrash.dart';
@@ -441,14 +443,15 @@ List<int> filteredIndexes = List.generate(menuItems.length, (index) => index)
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
                     onTap: () {
-    // Navigasi ke TrashDetailPage dengan memberikan detail trash yang diklik
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TrashDetailPage(trash: trashList[index]),
-      ),
-    );
-  },
+                      // Navigasi ke TrashDetailPage dengan memberikan detail trash yang diklik
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TrashDetailPage(trash: trashList[index]),
+                        ),
+                      );
+                    },
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 10),
                       padding: const EdgeInsets.all(10),

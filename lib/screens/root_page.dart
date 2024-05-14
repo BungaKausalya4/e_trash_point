@@ -66,6 +66,7 @@ class _RootPageState extends State<RootPage> {
       resizeToAvoidBottomInset: false,
       
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         shadowColor: lightColorScheme.primary,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

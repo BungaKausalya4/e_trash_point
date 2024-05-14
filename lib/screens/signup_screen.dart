@@ -73,10 +73,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       );
       // Navigate to the root page upon successful registration
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => RootPage()),
-      );
+        Navigator.pushNamedAndRemoveUntil(context, '/root', (_) => false);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -384,7 +381,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         height: 20,
                       ),
                       TextFormField(
-                        controller: passwordcontroller,
+                        controller: confirmpasswordcontroller,
                         obscureText: !_showConfirmPassword,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -469,7 +466,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   child: Ink(
     child: Container(
       alignment: Alignment.center,
-      child: Text('Sign Up'),
+                              child: Text('Sign Up',
+                                  style: TextStyle(color: Colors.white)),
     ),
   ),
 ),
