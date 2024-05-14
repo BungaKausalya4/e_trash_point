@@ -83,7 +83,7 @@ class _MapAppBarState extends State<MapAppBar> {
               }
             },
             style: ElevatedButton.styleFrom(
-              primary: lightColorScheme.primary,
+              backgroundColor: lightColorScheme.primary,
               padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 50.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0),

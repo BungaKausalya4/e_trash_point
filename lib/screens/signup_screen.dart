@@ -450,8 +450,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         });
   },
   style: ElevatedButton.styleFrom(
-    primary: lightColorScheme.primary,
-    onPrimary: Colors.white,
+                            backgroundColor: lightColorScheme.primary,
     elevation: 3,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),

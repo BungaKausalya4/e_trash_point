@@ -77,7 +77,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     ),
   ),
   style: ElevatedButton.styleFrom(
-    primary: Color.fromARGB(255, 154, 228, 135), // background color
+                backgroundColor:
+                    Color.fromARGB(255, 154, 228, 135), // background color
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),
     ),

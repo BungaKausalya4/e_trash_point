@@ -15,6 +15,7 @@ class TrashPage extends StatefulWidget {
 
 class _TrashPageState extends State<TrashPage> {
   int totalPoints = 0;
+
   int? selectedTrashId;
 
   List<DropdownMenuItem<int>> _buildDropdownMenuItems() {
@@ -42,6 +43,24 @@ class _TrashPageState extends State<TrashPage> {
 
   @override
   Widget build(BuildContext context) {
+    // get current user
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.userId)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        if (documentSnapshot['points'] == null) {
+          _updateUserPoints(widget.userId, 0);
+        } else {
+          setState(() {
+            totalPoints = documentSnapshot['points'];
+          });
+        }
+      }
+    });
+    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Trash Page'),
@@ -136,7 +155,7 @@ class _TrashPageState extends State<TrashPage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      primary: lightColorScheme.primary,
+                      backgroundColor: lightColorScheme.primary,
                       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
                       elevation: 4.0,

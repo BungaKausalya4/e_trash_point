@@ -115,7 +115,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          primary: lightColorScheme.primary,
+                          backgroundColor: lightColorScheme.primary,
                           padding: EdgeInsets.symmetric(vertical: 15.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),

@@ -49,7 +49,7 @@ class SharePage extends StatelessWidget {
                 style: TextStyle(fontSize: 20, color: lightColorScheme.primary),
               ),
               style: ElevatedButton.styleFrom(
-                primary: const Color.fromARGB(255, 182, 255, 154),
+                backgroundColor: const Color.fromARGB(255, 182, 255, 154),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

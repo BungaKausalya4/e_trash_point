@@ -4,12 +4,19 @@ import 'package:first_project/screens/welcome_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter binding is initialized
+  // WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter binding is initialized
+
+  // await Firebase.initializeApp(
+  //   name:'e-trash-point',
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
+  // widget binding
+  WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
-    name:'e-trash-point',
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
 
   runApp(const MyApp());
 }

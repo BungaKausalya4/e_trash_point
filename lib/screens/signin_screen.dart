@@ -292,8 +292,8 @@ void signInWithGoogle() async {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: lightColorScheme.primary,
-                            onPrimary: Colors.white,
+                            foregroundColor: Colors.white,
+                            backgroundColor: lightColorScheme.primary,
                             elevation: 3,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
