@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -40,6 +41,18 @@ dependencies:
   page_transition: ^2.1.0
   cached_network_image: ^3.3.1
   firebase_core: ^2.24.2
+  firebase_auth: ^4.16.0
+  google_sign_in: ^6.1.6
+  cloud_firestore: ^4.14.0
+  image_picker: ^1.0.8
+  firebase_storage: ^11.6.0
+  flutter_facebook_auth: ^6.2.0
+  url_launcher: ^6.2.4
+  fluttertoast: ^8.2.5
+  firebase_database: ^10.4.0
+  random_string: ^2.3.1
+  shared_preferences: ^2.2.3
+
 
   
 dev_dependencies:
@@ -69,8 +82,8 @@ flutter:
     - assets/images/background.png
     - assets/images/trash.png
     - assets/images/facebook_logo.svg
-    - assets/images/google_logo.svg
     - assets/images/instagram_logo.svg
+    - assets/images/google_logo.svg
     - assets/images/botolBesar.png
     - assets/images/botolKecil.png
     - assets/images/gelasplastik.png
@@ -89,6 +102,8 @@ flutter:
     - assets/images/RT.jpg
     - assets/images/SL.jpg
     - assets/images/TM.jpg
+    - assets/images/holding-phone.png
+    - assets/images/github_logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

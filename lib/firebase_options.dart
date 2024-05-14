@@ -48,6 +48,7 @@ class DefaultFirebaseOptions {
     authDomain: 'e-trash-point.firebaseapp.com',
     storageBucket: 'e-trash-point.appspot.com',
     measurementId: 'G-1WZZ5ECGWR',
+    databaseURL: 'https://e-trash-point-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -56,6 +57,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '314365297711',
     projectId: 'e-trash-point',
     storageBucket: 'e-trash-point.appspot.com',
+    authDomain: 'e-trash-point.firebaseapp.com',
+    databaseURL: 'https://e-trash-point-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

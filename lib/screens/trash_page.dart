@@ -1,11 +1,13 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:first_project/theme/theme.dart';
 import 'package:first_project/trash.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TrashPage extends StatefulWidget {
-  const TrashPage({Key? key}) : super(key: key);
+  final String userId; // Add this line
+
+  const TrashPage({Key? key, required this.userId}) : super(key: key); // Add userId to constructor
 
   @override
   State<TrashPage> createState() => _TrashPageState();
@@ -89,15 +91,16 @@ class _TrashPageState extends State<TrashPage> {
                       labelText: 'Select trash',
                       border: OutlineInputBorder(),
                       filled: true,
-                      fillColor: Colors.lightGreen[100], // Warna hijau muda
+                      fillColor: Colors.lightGreen[100],
                     ),
-                    dropdownColor: Colors.lightGreen[100], // Warna hijau muda
+                    dropdownColor: Colors.lightGreen[100],
                   ),
                   SizedBox(height: 16.0),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (selectedTrashId != null) {
                         Trash exchangedTrash = exchangeTrashWithPoints(selectedTrashId!);
+                        await _updateUserPoints(widget.userId, totalPoints);
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
@@ -176,5 +179,11 @@ class _TrashPageState extends State<TrashPage> {
     }
 
     return foundTrash;
+  }
+
+  Future<void> _updateUserPoints(String userId, int newPoints) async {
+    await FirebaseFirestore.instance.collection('users').doc(userId).update({
+      'points': newPoints,
+    });
   }
 }

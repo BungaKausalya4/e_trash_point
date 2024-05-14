@@ -222,7 +222,7 @@ List<int> filteredIndexes = List.generate(menuItems.length, (index) => index)
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => TrashPage(),
+                              builder: (context) => TrashPage(userId: '',),
                             ),
                           );
                           break;
@@ -230,7 +230,7 @@ List<int> filteredIndexes = List.generate(menuItems.length, (index) => index)
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => HistoryPage(),
+                              builder: (context) => HistoryPage(giftId: '', email: '',),
                             ),
                           );
                           break;

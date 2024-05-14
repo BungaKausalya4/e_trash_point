@@ -1,9 +1,12 @@
+import 'package:firebase_database/firebase_database.dart';
+import 'package:first_project/screens/database.dart';
 import 'package:first_project/screens/root_page.dart';
 import 'package:first_project/screens/signin_screen.dart';
 import 'package:first_project/widgets/custom_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:first_project/theme/theme.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -17,7 +20,111 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool agreePersonalData = true;
   bool _showPassword = false;
   bool _showConfirmPassword = false;
-  String _password = '';
+  String _password = '', username="", email="", confirm_pass="", phoneNumber="";
+  bool? gender; 
+
+
+  TextEditingController usernamecontroller= new TextEditingController();
+  TextEditingController emailcontroller= new TextEditingController();
+  TextEditingController passwordcontroller= new TextEditingController();
+  TextEditingController confirmpasswordcontroller= new TextEditingController();
+  TextEditingController phoneNumbercontroller= new TextEditingController();
+  TextEditingController addresscontroller= new TextEditingController();
+  TextEditingController gendercontroller= new TextEditingController();
+  final databaseReference = FirebaseDatabase.instance.ref("StoreData");
+
+
+
+    registration() async {
+  // Define your registration map correctly
+  Map<String, dynamic> registration = {
+    'username': usernamecontroller.text,
+    'email': emailcontroller.text,
+    'Phone Number': phoneNumbercontroller.text,
+    'Address': addresscontroller.text,
+    'Password': passwordcontroller.text,
+    'Gender': gender == true ? 'Male' : 'Female',
+  };
+
+  if (_password.isNotEmpty &&
+      usernamecontroller.text.isNotEmpty &&
+      emailcontroller.text.isNotEmpty) {
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailcontroller.text.trim(),
+        password: _password.trim(),
+      );
+      
+      // Use userCredential for further operations (e.g., accessing user details)
+      User? user = userCredential.user;
+      
+      // Continue with other logic (e.g., showing success message, navigation)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Registered Successfully: ${user?.email}",
+            style: TextStyle(fontSize: 20.0),
+          ),
+        ),
+      );
+      // Navigate to the root page upon successful registration
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => RootPage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: lightColorScheme.primary,
+            content: Text(
+              "Password Provided is too Weak",
+              style: TextStyle(fontSize: 18.0),
+            ),
+          ),
+        );
+      } else if (e.code == "email-already-in-use") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: lightColorScheme.primary,
+            content: Text(
+              "Account Already Exists",
+              style: TextStyle(fontSize: 18.0),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      // Handle other exceptions
+      print("Error: $e");
+    }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Please provide all required information",
+          style: TextStyle(fontSize: 18.0),
+        ),
+      ),
+    );
+  }
+
+  // Call addUserDetails from DatabaseMethods with registration map
+  await DatabaseMethods().addUserDetails(registration);
+
+  Fluttertoast.showToast(
+    msg: "Data Uploaded Successfully",
+    toastLength: Toast.LENGTH_SHORT,
+    gravity: ToastGravity.CENTER,
+    timeInSecForIosWeb: 1,
+    backgroundColor: lightColorScheme.primary,
+    textColor: Colors.white,
+    fontSize: 16.0,
+  );
+
+  
+}
 
   @override
   Widget build(BuildContext context) {
@@ -59,15 +166,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         height: 35,
                       ),
                       TextFormField(
+                        controller: emailcontroller,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter Full Name';
+                            return 'Please enter Email';
                           }
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Full Name'),
-                          hintText: 'Enter Full Name',
+                          label: const Text('Email'),
+                          hintText: 'Enter Email',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
                           ),
@@ -89,6 +197,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         height: 20,
                       ),
                       TextFormField(
+                        controller: usernamecontroller,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Username';
@@ -119,6 +228,110 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         height: 20,
                       ),
                       TextFormField(
+                        controller: phoneNumbercontroller,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Phone Number';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Phone Number'),
+                          hintText: 'Enter Phone Number',
+                          hintStyle: const TextStyle(
+                            color: Colors.black26,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      
+                       const SizedBox(
+                        height: 20,
+                      ),
+                      DropdownButtonFormField<bool>(
+  value: gender,
+  onChanged: (newValue) {
+    setState(() {
+      gender = newValue;
+    });
+  },
+  validator: (value) {
+    if (value == null) {
+      return 'Please select your gender';
+    }
+    return null;
+  },
+  decoration: InputDecoration(
+    labelText: 'Gender',
+    hintText: 'Select Gender',
+    border: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.black12),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.black12),
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
+  items: [
+    DropdownMenuItem<bool>(
+      value: true,
+      child: Text('Male'),
+    ),
+    DropdownMenuItem<bool>(
+      value: false,
+      child: Text('Female'),
+    ),
+  ],
+),
+
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      TextFormField(
+                        controller: addresscontroller,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Address';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: const Text('Address'),
+                          hintText: 'Enter Address',
+                          hintStyle: const TextStyle(
+                            color: Colors.black26,
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Colors.black12,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      TextFormField(
+                        controller: passwordcontroller,
                         obscureText: !_showPassword,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -167,6 +380,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         height: 20,
                       ),
                       TextFormField(
+                        controller: passwordcontroller,
                         obscureText: !_showConfirmPassword,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -214,38 +428,40 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            if (_formSignUpKey.currentState!.validate() && agreePersonalData) {
-                              // ScaffoldMessenger.of(context).showSnackBar(
-                              //   SnackBar(
-                              //     content: Text('Processing Data'),
-                              //   ),
-                              // );
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => const RootPage()),
-                              );
-                            } else if (!agreePersonalData) {
-                              // ScaffoldMessenger.of(context).showSnackBar(
-                              //   SnackBar(
-                              //     content: Text('Please agree to the processing of personal data'),
-                              //   ),
-                              // );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-    primary: lightColorScheme.primary, // Warna latar belakang tombol
-    onPrimary: Colors.white, // Warna teks pada tombol
-    elevation: 3, // Ketinggian bayangan tombol
+  onPressed: () {
+    
+    if (_formSignUpKey.currentState!.validate() && agreePersonalData) {
+      registration(); // Panggil fungsi registration() jika formulir valid dan setuju pada data pribadi
+    } else if (!agreePersonalData) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please agree to the processing of personal data'),
+        ),
+      );
+    }
+    databaseReference.child("users").push().set({
+          'username': usernamecontroller.text.toString(),
+                'address': addresscontroller.text.toString(),
+                'email': emailcontroller.text.toString(),
+                'password': passwordcontroller.text.toString(),
+                'id': DateTime.now()
+                    .microsecond
+                    .toString(),
+        });
+  },
+  style: ElevatedButton.styleFrom(
+    primary: lightColorScheme.primary,
+    onPrimary: Colors.white,
+    elevation: 3,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10), // Bentuk tombol bulat
+      borderRadius: BorderRadius.circular(10),
     ),
-    padding: EdgeInsets.symmetric(vertical: 15), // Padding tombol
+    padding: EdgeInsets.symmetric(vertical: 15),
     textStyle: TextStyle(
-      fontSize: 18, // Ukuran teks
-      fontWeight: FontWeight.bold, // Ketebalan teks
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
     ),
-    animationDuration: Duration(milliseconds: 300), // Durasi animasi tombol saat ditekan
+    animationDuration: Duration(milliseconds: 300),
   ),
   child: Ink(
     child: Container(
@@ -254,47 +470,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     ),
   ),
 ),
+
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 30,
                       ),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Sign Up with',
-                            style: TextStyle(
-                              color: Colors.black45,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/images/google_logo.svg',
-                            width: 32,
-                            height: 32,
-                          ),
-                          SvgPicture.asset(
-                            'assets/images/facebook_logo.svg',
-                            width: 32,
-                            height: 32,
-                          ),
-                          SvgPicture.asset(
-                            'assets/images/instagram_logo.svg',
-                            width: 32,
-                            height: 32,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                      
+                     
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -306,6 +488,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
+                              
+          
                               Navigator.push(
                                 context, 
                                 MaterialPageRoute(builder: (context) => const SignInScreen()),

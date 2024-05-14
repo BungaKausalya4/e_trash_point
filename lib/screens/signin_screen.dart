@@ -1,3 +1,4 @@
+import 'package:first_project/otp.dart';
 import 'package:first_project/screens/ResetPasswordScreen.dart';
 import 'package:first_project/screens/root_page.dart';
 import 'package:first_project/screens/signup_screen.dart';
@@ -5,27 +6,131 @@ import 'package:first_project/theme/theme.dart';
 import 'package:first_project/widgets/custom_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+  const SignInScreen({Key? key}) : super(key: key);
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  _SignInScreenState createState() => _SignInScreenState();
 }
 
 class _SignInScreenState extends State<SignInScreen> {
   final _formSignInKey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  String email = "";
+  String password = "";
   bool _showPassword = false;
   bool rememberPassword = true;
 
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController confirmpasswordcontroller = TextEditingController();
 
-@override
+Future<UserCredential> signInWithGithub() async {
+  GithubAuthProvider githubAuthProvider =GithubAuthProvider();
+
+  try {
+    return await FirebaseAuth.instance.signInWithProvider(githubAuthProvider);
+  } catch (e) {
+     print("");
+     rethrow;
+  }
+ 
+  
+  
+}
+void signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser != null) {
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        final UserCredential userCredential = await _auth.signInWithCredential(credential);
+        final User? user = userCredential.user;
+
+        if (user != null) {
+          // Navigate to home or root page after successful sign-in
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => RootPage()),
+          );
+        } else {
+          // Handle sign-in failure
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to sign in with Google.'),
+            ),
+          );
+        }
+      } else {
+        // Google sign-in canceled by user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Google sign-in canceled.'),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error signing in with Google: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error signing in with Google.'),
+        ),
+      );
+    }
+  }
+  void userSignIn() async {
+  try {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => RootPage()),
+    );
+  } on FirebaseAuthException catch (e) {
+    String errorMessage = 'The password/email for this user is incorrect.';
+    
+    if (e.code == 'user-not-found') {
+      errorMessage = 'No user found for that email.';
+    } else if (e.code == 'wrong-password') {
+      errorMessage = 'Wrong password provided for this user.';
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: const Color.fromARGB(255, 70, 172, 30),
+        content: Text(
+          errorMessage,
+          style: TextStyle(fontSize: 18.0),
+        ),
+      ),
+    );
+  } catch (e) {
+    print('Error signing in: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+          'Sign in failed. Please try again later.',
+          style: TextStyle(fontSize: 18.0),
+        ),
+      ),
+    );
+  }
+}
+
+
+  @override
   void dispose() {
-    // Clean up the controllers when the widget is disposed
-    _usernameController.dispose();
-    _passwordController.dispose();
+    emailController.dispose();
+    confirmpasswordcontroller.dispose();
     super.dispose();
   }
 
@@ -69,26 +174,20 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 35,
                       ),
                       TextFormField(
-                        controller: _usernameController,
+                        controller: emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter Username';
+                            return 'Please enter email';
                           }
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Username'),
-                          hintText: 'Enter Username',
+                          labelText: 'email',
+                          hintText: 'Enter email',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
                             borderSide: const BorderSide(
                               color: Colors.black12,
                             ),
@@ -100,7 +199,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 20,
                       ),
                       TextFormField(
-                        controller: _passwordController,
+                        controller: confirmpasswordcontroller,
                         obscureText: !_showPassword,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -109,18 +208,12 @@ class _SignInScreenState extends State<SignInScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Password'),
+                          labelText: 'Password',
                           hintText: 'Enter Password',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
                             borderSide: const BorderSide(
                               color: Colors.black12,
                             ),
@@ -142,141 +235,86 @@ class _SignInScreenState extends State<SignInScreen> {
                       const SizedBox(
                         height: 10,
                       ),
-                      Column(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  Checkbox(
-                                    value: rememberPassword,
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        rememberPassword = value!;
-                                      });
-                                    },
-                                    activeColor: lightColorScheme.primary,
-                                  ),
-                                  const Text(
-                                    'Remember me',
-                                    style: TextStyle(
-                                      color: Colors.black45,
-                                    ),
-                                  ),
-                                ],
+                              Checkbox(
+                                value: rememberPassword,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    rememberPassword = value ?? false;
+                                  });
+                                },
+                                activeColor: lightColorScheme.primary,
                               ),
-                              GestureDetector(
+                              const Text(
+                                'Remember me',
+                                style: TextStyle(
+                                  color: Colors.black45,
+                                ),
+                              ),
+                            ],
+                          ),
+                          GestureDetector(
   onTap: () {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Forget Password?'),
-          content: const Text('Please enter your email to reset your password.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-              },
-              child: const Text('Close'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ResetPasswordScreen(),
-                  ),
-                );
-              },
-              child: const Text('Reset Password'),
-            ),
-          ],
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ResetPasswordScreen()),
     );
   },
   child: Text(
-    'Forget password?',
+    "Forgot Password?",
     style: TextStyle(
-      fontWeight: FontWeight.bold,
-      color: lightColorScheme.primary,
+      color: Color(0xFF8c8e98),
+      fontSize: 13.0, // Ubah ukuran font ke 16
+      fontWeight: FontWeight.w500,
     ),
   ),
 ),
 
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
                         ],
                       ),
-                      SizedBox(
-  width: double.infinity,
-  child: ElevatedButton(
-  onPressed: () {
-    if (_formSignInKey.currentState!.validate() && rememberPassword) {
-      String username = 'E-Trash Point';
-      String password = 'etrashpoint';
-      if (_usernameController.text == username && _passwordController.text == password) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sign in successful'),
-          ),
-        );
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const RootPage()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid username or password'),
-          ),
-        );
-      }
-    } else if (!rememberPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please remember your password'),
-        ),
-      );
-    }
-  },
-  style: ElevatedButton.styleFrom(
-    primary: lightColorScheme.primary, 
-    onPrimary: Colors.white, 
-    elevation: 3, 
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10), 
-    ),
-    padding: EdgeInsets.symmetric(vertical: 15), 
-    textStyle: TextStyle(
-      fontSize: 18, 
-      fontWeight: FontWeight.bold, 
-    ),
-    animationDuration: Duration(milliseconds: 300), 
-  ),
-  child: Ink(
-    child: Container(
-      alignment: Alignment.center,
-      child: Text('Sign In'),
-    ),
-  ),
-),
-),
-
                       const SizedBox(
                         height: 20,
                       ),
-                      const Row(
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_formSignInKey.currentState!.validate()) {
+                              setState(() {
+                                email = emailController.text;
+                                password = confirmpasswordcontroller.text;
+                              });
+                              userSignIn();
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: lightColorScheme.primary,
+                            onPrimary: Colors.white,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            textStyle: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            animationDuration: Duration(milliseconds: 300),
+                          ),
+                          child: Text('Sign In'),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
+                          const Text(
                             'Sign In with',
                             style: TextStyle(
                               color: Colors.black45,
@@ -290,21 +328,63 @@ class _SignInScreenState extends State<SignInScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          SvgPicture.asset(
-                            'assets/images/google_logo.svg',
-                            width: 32,
-                            height: 32,
-                          ),
-                          SvgPicture.asset(
-                            'assets/images/facebook_logo.svg',
-                            width: 32,
-                            height: 32,
-                          ),
-                          SvgPicture.asset(
-                            'assets/images/instagram_logo.svg',
-                            width: 32,
-                            height: 32,
-                          ),
+                        
+                          GestureDetector(
+              onTap: signInWithGoogle,
+              child: SvgPicture.asset(
+                'assets/images/google_logo.svg',
+                width: 32,
+                height: 32,
+              ),
+            ),
+                          GestureDetector(
+  onTap: () {
+    // Navigasi ke kelas SMS
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => sms()), // Ganti SmsScreen dengan nama kelas yang sesuai
+    );
+  },
+  child: Icon(
+    Icons.message, // Gunakan ikon pesan atau ikon lain yang sesuai
+    size: 32,
+    color: Colors.black, // Ubah warna ikon sesuai kebutuhan
+  ),
+),
+GestureDetector(
+  onTap: () async {
+    try {
+      UserCredential userCredential = await signInWithGithub();
+        
+      if (context.mounted) {
+        // Navigasi hanya dilakukan jika berhasil masuk
+
+        print("Successfull");
+
+
+      }
+
+              Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RootPage(),
+          ),
+        );
+    } catch (e) {
+      // Tangani kesalahan yang terjadi selama proses masuk
+      print('Error signing in with GitHub: $e');
+      // Anda mungkin ingin menampilkan pesan kesalahan kepada pengguna di sini
+    }
+  },
+  child: Image.asset(
+    'assets/images/github_logo.png',
+    width: 32,
+    height: 32,
+  ),
+),
+
+
+                          
                         ],
                       ),
                       const SizedBox(
@@ -323,7 +403,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (e) => const SignUpScreen()),
+                                MaterialPageRoute(builder: (context) => const SignUpScreen()),
                               );
                             },
                             child: const Text(

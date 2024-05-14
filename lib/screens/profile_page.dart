@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:first_project/screens/ChangePasswordPage.dart';
 import 'package:first_project/screens/EditProfilePage.dart';
 import 'package:first_project/screens/FAQs.dart';
@@ -7,6 +10,8 @@ import 'package:first_project/screens/welcome_screen.dart';
 import 'package:first_project/theme/theme.dart';
 import 'package:first_project/widgets/profile_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -15,9 +20,48 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
+
 class _ProfilePageState extends State<ProfilePage> {
-  String _username = 'E-Trash Point';
-  String _email = 'e-trashPoint@gmail.com';
+  
+  String _username = '';
+  String _email = '';
+  String imageUrl = '';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+@override
+  void initState() {
+    super.initState();
+    // Panggil method untuk mengambil informasi pengguna saat initState
+    _getUserInfo();
+  }
+
+  void _getUserInfo() async {
+  try {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      // Set nilai _username dan _email berdasarkan informasi pengguna yang terautentikasi
+      setState(() {
+        _username = user.displayName ?? ''; // Gunakan displayName jika tersedia
+        _email = user.email ?? '';
+      });
+    }
+  } catch (e) {
+    print('Error getting user info: $e');
+  }
+}
+
+void _signOut() async {
+  try {
+    await _auth.signOut();
+    // Navigasi ke halaman welcome screen setelah logout
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => WelcomeScreen()),
+    );
+  } catch (e) {
+    print("Error signing out: $e");
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               Container(
                 width: 150,
-                child: const CircleAvatar(
-                  radius: 60,
-                  backgroundImage: ExactAssetImage('assets/images/profile.png'),
-                ),
+                height: 150,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
@@ -44,7 +85,98 @@ class _ProfilePageState extends State<ProfilePage> {
                     width: 5.0,
                   ),
                 ),
-              ),
+                child: Stack(
+                  children: [
+                    ClipOval(
+                      child: imageUrl.isNotEmpty
+                          ? Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              width: 150,
+                              height: 150,
+                            )
+                          : Image.asset(
+                              'assets/images/profile.png',
+                              fit: BoxFit.cover,
+                              width: 150,
+                              height: 150,
+                            ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: lightColorScheme.primary, // Background color
+                        ),
+                        child: IconButton(
+                          onPressed: () async {
+                            // Step 1: Pick image from camera or gallery
+                            final ImagePicker imagePicker = ImagePicker();
+                            final XFile? file = await showModalBottomSheet<XFile>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Wrap(
+                                  children: <Widget>[
+                                    ListTile(
+                                      leading: Icon(Icons.photo_library),
+                                      title: Text('Photo Library'),
+                                      onTap: () async {
+                                        Navigator.pop(context, await imagePicker.pickImage(source: ImageSource.gallery));
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: Icon(Icons.photo_camera),
+                                      title: Text('Camera'),
+                                      onTap: () async {
+                                        Navigator.pop(context, await imagePicker.pickImage(source: ImageSource.camera));
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+
+                            if (file == null) return;
+
+                            // Step 2: Upload to Firebase Storage
+                            try {
+                              String uniqueFileName =
+                                  DateTime.now().millisecondsSinceEpoch.toString();
+                              Reference referenceRoot =
+                                  FirebaseStorage.instance.ref();
+                              Reference referenceDirImages =
+                                  referenceRoot.child('images');
+                              Reference referenceImageToUpload =
+                                  referenceDirImages.child(uniqueFileName);
+
+                              await referenceImageToUpload
+                                  .putFile(File(file.path));
+
+                              // Step 3: Get the download URL
+                              imageUrl =
+                                  await referenceImageToUpload.getDownloadURL();
+
+                              setState(() {
+                                // Update the UI to display the uploaded image
+                                imageUrl = imageUrl;
+                              });
+                            } catch (error) {
+                              print('Error uploading image: $error');
+                            }
+                          },
+                          icon: Icon(Icons.add_a_photo),
+                          iconSize: 20,
+                          color: Colors.white,
+                            ),
+                          ),
+                  )
+                        ],
+                      ),
+                    ),
               const SizedBox(height: 10),
               SizedBox(
                 width: size.width * .8, // Adjusted width
@@ -156,18 +288,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        // Navigate to welcome screen when log out
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => WelcomeScreen()),
-                        );
-                      },
-                      child: ProfileWidget(
-                        icon: Icons.logout,
-                        title: 'Log Out',
-                      ),
-                    ),
+  onTap: _signOut,
+  child: const ProfileWidget(
+    icon: Icons.logout,
+    title: 'Log Out',
+  ),
+),
+
                   ],
                 ),
               ),
