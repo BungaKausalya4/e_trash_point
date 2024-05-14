@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:first_project/screens/database.dart';
 import 'package:first_project/screens/root_page.dart';
@@ -24,13 +26,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool? gender; 
 
 
-  TextEditingController usernamecontroller= new TextEditingController();
-  TextEditingController emailcontroller= new TextEditingController();
-  TextEditingController passwordcontroller= new TextEditingController();
-  TextEditingController confirmpasswordcontroller= new TextEditingController();
-  TextEditingController phoneNumbercontroller= new TextEditingController();
-  TextEditingController addresscontroller= new TextEditingController();
-  TextEditingController gendercontroller= new TextEditingController();
+  TextEditingController usernamecontroller = TextEditingController();
+  TextEditingController emailcontroller = TextEditingController();
+  TextEditingController passwordcontroller = TextEditingController();
+  TextEditingController confirmpasswordcontroller = TextEditingController();
+  TextEditingController phoneNumbercontroller = TextEditingController();
+  TextEditingController addresscontroller = TextEditingController();
+  TextEditingController gendercontroller = TextEditingController();
   final databaseReference = FirebaseDatabase.instance.ref("StoreData");
 
 
@@ -43,7 +45,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     'Phone Number': phoneNumbercontroller.text,
     'Address': addresscontroller.text,
     'Password': passwordcontroller.text,
+      'points': 0,
     'Gender': gender == true ? 'Male' : 'Female',
+      
   };
 
   if (_password.isNotEmpty &&
@@ -439,15 +443,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       );
     }
-    databaseReference.child("users").push().set({
-          'username': usernamecontroller.text.toString(),
-                'address': addresscontroller.text.toString(),
-                'email': emailcontroller.text.toString(),
-                'password': passwordcontroller.text.toString(),
-                'id': DateTime.now()
-                    .microsecond
-                    .toString(),
-        });
+                            // databaseReference.child("users").push().set({
+                            //       'username': usernamecontroller.text.toString(),
+                            //             'address': addresscontroller.text.toString(),
+                            //             'email': emailcontroller.text.toString(),
+                            //             'password': passwordcontroller.text.toString(),
+                            //             'id': DateTime.now()
+                            //                 .microsecond
+                            //                 .toString(),
+                            //     });
   },
   style: ElevatedButton.styleFrom(
                             backgroundColor: lightColorScheme.primary,
@@ -474,8 +478,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       const SizedBox(
                         height: 30,
                       ),
-                      
-                     
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

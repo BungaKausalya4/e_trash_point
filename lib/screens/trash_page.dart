@@ -1,3 +1,6 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'package:first_project/screens/database.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:first_project/theme/theme.dart';
@@ -5,9 +8,10 @@ import 'package:first_project/trash.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TrashPage extends StatefulWidget {
-  final String userId; // Add this line
+  String userId; // Add this line
 
-  const TrashPage({Key? key, required this.userId}) : super(key: key); // Add userId to constructor
+  TrashPage({Key? key, required this.userId})
+      : super(key: key); // Add userId to constructor
 
   @override
   State<TrashPage> createState() => _TrashPageState();
@@ -41,25 +45,21 @@ class _TrashPageState extends State<TrashPage> {
     return items;
   }
 
+  DatabaseMethods db = DatabaseMethods();
+
   @override
   Widget build(BuildContext context) {
-    // get current user
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(widget.userId)
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        if (documentSnapshot['points'] == null) {
-          _updateUserPoints(widget.userId, 0);
-        } else {
-          setState(() {
-            totalPoints = documentSnapshot['points'];
-          });
-        }
-      }
+    // change the totalPoints to the user's points
+
+    widget.userId = db.getCurrentUserUid()!;
+
+    db.getUserByUid(widget.userId).then((value) {
+      setState(() {
+        totalPoints = value.data()!['points'];
+      });
     });
-    
+
+    // print('Total Points: $totalPoints');
 
     return Scaffold(
       appBar: AppBar(
@@ -118,14 +118,25 @@ class _TrashPageState extends State<TrashPage> {
                   ElevatedButton(
                     onPressed: () async {
                       if (selectedTrashId != null) {
-                        Trash exchangedTrash = exchangeTrashWithPoints(selectedTrashId!);
-                        await _updateUserPoints(widget.userId, totalPoints);
+                        Trash exchangedTrash =
+                            exchangeTrashWithPoints(selectedTrashId!);
+                        db.addTransactionToUser(widget.userId, {
+                          'transactionId':
+                              DateTime.now().millisecondsSinceEpoch,
+                          'points': totalPoints,
+                          'timestamp': DateTime.now(),
+                          'type': 'trash',
+                          'trashId': selectedTrashId,
+                        });
+
+                        _updateUserPoints(widget.userId, totalPoints);
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
                             backgroundColor: Colors.green.shade100,
                             title: Text('Success'),
-                            content: Text('You have exchanged the trash for ${exchangedTrash.poin} points.'),
+                            content: Text(
+                                'You have exchanged the trash for ${exchangedTrash.poin} points.'),
                             actions: [
                               TextButton(
                                 onPressed: () {
@@ -141,7 +152,8 @@ class _TrashPageState extends State<TrashPage> {
                           context: context,
                           builder: (context) => AlertDialog(
                             title: Text('Error'),
-                            content: Text('Please select a trash from the list.'),
+                            content:
+                                Text('Please select a trash from the list.'),
                             actions: [
                               TextButton(
                                 onPressed: () {
@@ -156,8 +168,10 @@ class _TrashPageState extends State<TrashPage> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: lightColorScheme.primary,
-                      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 12.0, horizontal: 24.0),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0)),
                       elevation: 4.0,
                     ),
                     child: Text(
@@ -186,7 +200,8 @@ class _TrashPageState extends State<TrashPage> {
         poin: 0,
         trashName: 'Unknown',
         imageURL: '',
-        isSelected: false, description: '',
+        isSelected: false,
+        description: '',
       ),
     );
 
@@ -195,12 +210,15 @@ class _TrashPageState extends State<TrashPage> {
         foundTrash.isSelected = true;
         totalPoints += foundTrash.poin;
       });
+      
     }
+
 
     return foundTrash;
   }
 
   Future<void> _updateUserPoints(String userId, int newPoints) async {
+    
     await FirebaseFirestore.instance.collection('users').doc(userId).update({
       'points': newPoints,
     });

@@ -1,3 +1,4 @@
+import 'package:first_project/screens/database.dart';
 import 'package:first_project/screens/detail_page.dart';
 import 'package:first_project/screens/infoTrash.dart';
 import 'package:first_project/screens/maps.dart';
@@ -21,6 +22,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int totalPoints = 0;
   String searchText = '';
+
+  DatabaseMethods db = DatabaseMethods();
 
 
 
@@ -46,6 +49,14 @@ class _HomePageState extends State<HomePage> {
 List<int> filteredIndexes = List.generate(menuItems.length, (index) => index)
     .where((index) => menuItems[index].toLowerCase().contains(searchText.toLowerCase()))
     .toList();
+
+    String userId = db.getCurrentUserUid()!;
+
+    db.getUserByUid(userId).then((value) {
+      setState(() {
+        totalPoints = value.data()!['points'];
+      });
+    });
 
 
 

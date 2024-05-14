@@ -97,7 +97,13 @@ class _RootPageState extends State<RootPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-          Navigator.push(context, PageTransition(child: const TrashPage(userId: '',), type: PageTransitionType.bottomToTop));
+          Navigator.push(
+              context,
+              PageTransition(
+                  child: TrashPage(
+                    userId: '',
+                  ),
+                  type: PageTransitionType.bottomToTop));
         },
         child: Image.asset('assets/images/trash.png', height: 60.0,),
         backgroundColor: lightColorScheme.primary,
