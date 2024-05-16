@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 class EditProfilePage extends StatefulWidget {
   final String username;
   final String email;
-  
 
-  const EditProfilePage({Key? key, required this.username, required this.email}) : super(key: key);
+  const EditProfilePage({Key? key, required this.username, required this.email})
+      : super(key: key);
 
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
@@ -23,16 +23,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController addresscontroller = TextEditingController();
   TextEditingController gendercontroller = TextEditingController();
   String selectedGender = "";
-  bool? gender; 
-
-
-  getontheload() async {
-    setState(() {});
-  }
+  bool? gender;
 
   @override
   void initState() {
-    getontheload();
     super.initState();
   }
 
@@ -40,17 +34,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Widget allUserDetails() {
     return FutureBuilder(
-      future: db.getUserData(),
-    builder: (context, AsyncSnapshot snapshot) {
+      future: db.getUserDetails(),
+      builder: (context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: CircularProgressIndicator(),
           );
         }
-        Map<String, dynamic>? ds = snapshot.data!.data();
-      return snapshot.hasData
+        var ds = snapshot.data as dynamic;
+        return snapshot.hasData
             ? Column(children: [
-              
                 TextFormField(
                   controller: emailController,
                   validator: (value) {
@@ -61,7 +54,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   },
                   decoration: InputDecoration(
                     label: const Text('Email'),
-                    hintText: 'Enter Email',
+                    hintText: ds!['email'],
                     prefixIcon: Icon(Icons.email),
                     hintStyle: const TextStyle(
                       color: Colors.black26,
@@ -85,16 +78,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 TextFormField(
                   controller: usernameController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter Username';
-                    }
-                    return null;
-                  },
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.account_circle),
                     label: const Text('Username'),
-                    hintText: 'Enter Username',
+                    hintText: ds['username'],
                     hintStyle: const TextStyle(
                       color: Colors.black26,
                     ),
@@ -126,7 +113,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.phone),
                     label: const Text('Phone Number'),
-                    hintText: 'Enter Phone Number',
+                    hintText: ds['Phone Number'],
                     hintStyle: const TextStyle(
                       color: Colors.black26,
                     ),
@@ -144,7 +131,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                   ),
                 ),
-                      
                 const SizedBox(
                   height: 20,
                 ),
@@ -185,7 +171,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(
                   height: 10,
                 ),
@@ -199,7 +184,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   },
                   decoration: InputDecoration(
                     label: const Text('Address'),
-                    hintText: 'Enter Address',
+                    hintText: ds['Address'],
                     prefixIcon: Icon(Icons.location_on),
                     hintStyle: const TextStyle(
                       color: Colors.black26,
@@ -218,53 +203,105 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                   ),
                 ),
-                
               ])
-          : Container();
-    },
-  );
-}
+            : Container();
+      },
+    );
+  }
 
+  void saveChanges() {
+    if (emailController.text.isNotEmpty) {
+      db.updateUser({
+        'email': emailController.text,
+      });
+    }
+    if (usernameController.text.isNotEmpty) {
+      db.updateUser({
+        'username': usernameController.text,
+      });
+    }
+    if (phoneNumbercontroller.text.isNotEmpty) {
+      db.updateUser({
+        'Phone Number': phoneNumbercontroller.text,
+      });
+    }
+    if (addresscontroller.text.isNotEmpty) {
+      db.updateUser({
+        'Address': addresscontroller.text,
+      });
+    }
 
- @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('Edit Profile'),
-    ),
-    body: SingleChildScrollView(
-      child: Container(
-        margin: EdgeInsets.only(left: 20.0, right: 20.0, top: 30.0),
-        child: Column(
-          children: [
-            allUserDetails(),
-            SizedBox(height: 200), // Tambahkan sedikit spasi setelah semua detail pengguna
-            ElevatedButton(
-              onPressed: () {
-                // Logika untuk menyimpan perubahan
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 120),
-                child: Text(
-                  'Save',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
+    // update gender
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit Profile'),
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.only(left: 20.0, right: 20.0, top: 30.0),
+          child: Column(
+            children: [
+              allUserDetails(),
+              SizedBox(
+                  height:
+                      200), // Tambahkan sedikit spasi setelah semua detail pengguna
+              ElevatedButton(
+                onPressed: () {
+                  // Logika untuk menyimpan perubahan
+                  saveChanges();
+                  Navigator.pop(context);
+                },
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 120),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: lightColorScheme.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: lightColorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              SizedBox(height: 5),
+              ElevatedButton(
+                onPressed: () {
+                  // Logika untuk menyimpan perubahan
+
+                  Navigator.pop(context);
+                },
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 110),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: lightColorScheme.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }

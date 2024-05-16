@@ -65,13 +65,12 @@ class DatabaseMethods {
   }
 
   // get user data from database
-  Future<dynamic>? getUserData() async {
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUserDetails() async {
     return await FirebaseFirestore.instance
         .collection("users")
         .doc(getCurrentUserUid())
         .get();
   }
-
 
   // add transaction table to database
   Future addTransaction(Map<String, dynamic> transactionMap) async {
@@ -85,10 +84,17 @@ class DatabaseMethods {
     return FirebaseAuth.instance.currentUser!.uid;
   }
 
-  Future UpdateUserDetail(String id, Map<String, dynamic> updateInfo) async {
+  // Future UpdateUserDetail(String id, Map<String, dynamic> updateInfo) async {
+  //   return await FirebaseFirestore.instance
+  //       .collection("users")
+  //       .doc(id)
+  //       .update(updateInfo);
+  // }
+
+  Future updateUser(Map<String, dynamic> updateInfo) async {
     return await FirebaseFirestore.instance
         .collection("users")
-        .doc(id)
+        .doc(getCurrentUserUid())
         .update(updateInfo);
   }
 
