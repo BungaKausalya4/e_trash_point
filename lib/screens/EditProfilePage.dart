@@ -218,6 +218,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                   ),
                 ),
+                
               ])
           : Container();
     },
@@ -225,48 +226,45 @@ class _EditProfilePageState extends State<EditProfilePage> {
 }
 
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit Profile'),
-      ),
-      body: Container(
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Edit Profile'),
+    ),
+    body: SingleChildScrollView(
+      child: Container(
         margin: EdgeInsets.only(left: 20.0, right: 20.0, top: 30.0),
         child: Column(
           children: [
-            Expanded(
-              child: allUserDetails(),
-            ),
+            allUserDetails(),
+            SizedBox(height: 200), // Tambahkan sedikit spasi setelah semua detail pengguna
             ElevatedButton(
-  onPressed: () {
-    
-  },
-  child: Padding(
-    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-    child: Center(
-      child: Text(
-        'Save',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-        ),
-      ),
-    ),
-  ),
-  style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    lightColorScheme.primary, // background color
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
-  ),
-),
+              onPressed: () {
+                // Logika untuk menyimpan perubahan
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 120),
+                child: Text(
+                  'Save',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: lightColorScheme.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  
 }
