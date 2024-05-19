@@ -131,26 +131,34 @@ class _CartPageState extends State<CartPage> {
                               
 
                               // if user doesnt have enough points
-                              if (_userPoints < _totalPoints) {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    backgroundColor: Colors.green,
-                                    title: Text(
-                                      'Cari Sampah Lagi!!',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    content: Text(
-                                      'You don\'t have enough points to redeem the gift.',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                      ),
-                                    ),
+                             if (_userPoints < _totalPoints) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: Color.fromARGB(255, 74, 177, 33),
+      title: Text(
+        'Ops! You Have Less Points..',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset("assets/images/ops.png"),
+          SizedBox(height: 10),
+          Text(
+            'You don\'t have enough points to redeem the gift.',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 18,
+            ),
+          ),
+        ],
+      ),
+  
                                     actions: [
                                       TextButton(
                                         onPressed: () {
